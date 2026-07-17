@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { 
-  Palette, Code2, Copy, Check, Sparkles, Sliders, ArrowLeft
+  Palette, Code2, Copy, Check, Sparkles, Sliders, ArrowLeft, Download
 } from 'lucide-react';
+import { downloadTextFile, CAD_DXF_TEMPLATES } from '../utils/fileDownloader';
 
 export const ShadeMatchingSection: React.FC = () => {
   const [isCalibrated, setIsCalibrated] = useState<boolean>(false);
   const [selectedSample, setSelectedSample] = useState<'A1' | 'A2' | 'A3' | 'B1' | 'BL1'>('A2');
   const [copiedCode, setCopiedCode] = useState<boolean>(false);
+  const [photoViewMode, setPhotoViewMode] = useState<'fullKit' | 'clinicalApp'>('fullKit');
 
   const vitaShades = {
     A1: { code: 'A1', hexUncalibrated: '#e8dbba', hexCalibrated: '#f2e8cf', lab: 'L:82 a:1.2 b:14.5', desc: 'دندان روشن و شفاف' },
@@ -158,13 +160,71 @@ def match_vita_shade(tooth_roi_bgr):
           ))}
         </div>
 
+        {/* Real Generated Product Photo with Photo Mode Switcher */}
+        <div className="p-4 rounded-2xl bg-[#030408] border border-white/10 mb-6 flex flex-col md:flex-row items-center gap-6">
+          <div className="w-full md:w-1/2 h-56 rounded-xl overflow-hidden border border-white/10 relative group img-shimmer shrink-0">
+            <img
+              src={photoViewMode === 'fullKit' ? '/images/full_shade_kit.jpg' : '/images/shade_matching.jpg'}
+              alt="VITA Shade AI Calibration Graycard Photo"
+              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+            />
+            <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/80 backdrop-blur-md p-1 rounded-xl border border-white/10 text-[9px]">
+              <button
+                onClick={() => setPhotoViewMode('fullKit')}
+                className={`px-2 py-0.5 rounded-lg font-bold transition ${
+                  photoViewMode === 'fullKit' ? 'bg-[#e8bf82] text-[#0b0c15]' : 'text-[#8a8a92] hover:text-white'
+                }`}
+              >
+                کیت کامل پکیج
+              </button>
+              <button
+                onClick={() => setPhotoViewMode('clinicalApp')}
+                className={`px-2 py-0.5 rounded-lg font-bold transition ${
+                  photoViewMode === 'clinicalApp' ? 'bg-[#44d4cf] text-[#0b0c15]' : 'text-[#8a8a92] hover:text-white'
+                }`}
+              >
+                عکس کاربری در مطب
+              </button>
+            </div>
+            <span className="absolute bottom-2 right-2 bg-black/80 backdrop-blur-md px-2.5 py-1 rounded-lg text-[9px] text-[#e8bf82] font-mono border border-white/10">
+              {photoViewMode === 'fullKit' ? 'تصویر کیت کامل کارت طوسی ۱۸٪ + پایه تبلت' : 'استفاده واقعی با دوربین موبایل'}
+            </span>
+          </div>
+          <div className="space-y-2 text-xs">
+            <h4 className="font-bold text-sm text-[#f6f5f0]">استفاده واقعی از کارت ۱۸٪ طوسی در مطب</h4>
+            <p className="text-[#8a8a92] leading-relaxed">
+              دندانپزشک کارت مقاوم در برابر اتوکلاو را کنار دندان بیمار قرار داده و با اپلیکیشن موبایل عکس می‌گیرد. سیستم با خواندن مرجع طوسی، تمام خطاهای زردی یونیت و پنجره مطب را کالیبره کرده و کد طیف رنگ VITA را نمایش می‌دهد.
+            </p>
+          </div>
+        </div>
+
         {/* Comparison Display Box */}
         <div className="grid md:grid-cols-2 gap-6 bg-[#07080d] p-6 rounded-2xl border border-white/[0.08]">
-          {/* Visual Swatch */}
-          <div className="flex flex-col items-center justify-center p-8 rounded-2xl border border-white/[0.08] relative overflow-hidden"
+          {/* Visual Swatch & Graycard Illustration */}
+          <div className="flex flex-col items-center justify-between p-6 rounded-2xl border border-white/[0.08] relative overflow-hidden"
             style={{ backgroundColor: isCalibrated ? current.hexCalibrated : current.hexUncalibrated }}>
             
-            <div className="bg-[#0b0c15]/90 backdrop-blur-md px-4 py-2 rounded-xl text-center border border-white/[0.2]">
+            {/* Visual Vector SVG Graphic Card for 18% Graycard */}
+            <div className="w-full max-w-[200px] mb-4">
+              <svg viewBox="0 0 200 120" className="w-full h-auto drop-shadow-md">
+                {/* Graycard Synthetic Plate */}
+                <rect x="20" y="10" width="160" height="100" rx="8" fill="#808080" stroke="#404040" strokeWidth="2" />
+                {/* White Calibration Target Square */}
+                <rect x="35" y="25" width="40" height="35" rx="3" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1" />
+                <text x="55" y="45" fill="#000000" fontSize="7" fontWeight="bold" textAnchor="middle">100% W</text>
+                {/* 18% Neutral Gray Square */}
+                <rect x="80" y="25" width="40" height="35" rx="3" fill="#808080" stroke="#f6f5f0" strokeWidth="1" />
+                <text x="100" y="45" fill="#ffffff" fontSize="7" fontWeight="bold" textAnchor="middle">18% GRAY</text>
+                {/* Black Square */}
+                <rect x="125" y="25" width="40" height="35" rx="3" fill="#171717" stroke="#404040" strokeWidth="1" />
+                <text x="145" y="45" fill="#ffffff" fontSize="7" fontWeight="bold" textAnchor="middle">0% BLK</text>
+                {/* VITA Shade Code Printed on Card */}
+                <rect x="35" y="72" width="130" height="25" rx="4" fill="#1e293b" opacity="0.9" />
+                <text x="100" y="88" fill="#e8bf82" fontSize="9" fontWeight="black" textAnchor="middle" fontFamily="monospace">DentLab VITA Shade Calibration Card</text>
+              </svg>
+            </div>
+
+            <div className="bg-[#0b0c15]/90 backdrop-blur-md px-4 py-2 rounded-xl text-center border border-white/[0.2] w-full">
               <p className="text-[10px] text-[#8a8a92]">کد استخراج شده VITA</p>
               <p className="text-2xl font-black text-[#44d4cf] font-mono">{current.code}</p>
               <p className="text-[10px] text-[#ebeae3] font-mono">{current.lab}</p>
@@ -213,13 +273,29 @@ def match_vita_shade(tooth_roi_bgr):
               <p className="text-xs text-[#8a8a92]">فرمول استاندارد کالیبراسیون و انطباق طیف رنگ دندانپزشکی</p>
             </div>
           </div>
-          <button
-            onClick={handleCopyCode}
-            className="px-4 py-2 rounded-xl bg-white/[0.04] border border-white/[0.1] hover:bg-[#c9a96e]/10 hover:border-[#c9a96e]/30 text-[#e8bf82] text-xs font-bold flex items-center gap-2 transition"
-          >
-            {copiedCode ? <Check className="w-4 h-4 text-[#e8bf82]" /> : <Copy className="w-4 h-4" />}
-            <span>{copiedCode ? 'کد کپی شد!' : 'کپی الگوریتم پایتون'}</span>
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => downloadTextFile('vita_shade_cielab_matcher.py', pythonShadeCode, 'text/plain;charset=utf-8')}
+              className="px-3.5 py-2 rounded-xl bg-white/[0.04] border border-white/[0.1] hover:bg-[#c9a96e]/10 hover:border-[#c9a96e]/30 text-[#e8bf82] text-xs font-bold flex items-center gap-1.5 transition"
+            >
+              <Download className="w-4 h-4" />
+              <span>دانلود اسکریپت .py</span>
+            </button>
+            <button
+              onClick={() => downloadTextFile('VITA_GrayCard_Print.dxf', CAD_DXF_TEMPLATES.shadeCard, 'text/plain;charset=utf-8')}
+              className="px-3.5 py-2 rounded-xl bg-white/[0.04] border border-white/[0.1] hover:bg-[#44d4cf]/10 hover:border-[#44d4cf]/30 text-[#44d4cf] text-xs font-bold flex items-center gap-1.5 transition"
+            >
+              <Download className="w-4 h-4" />
+              <span>دانلود DXF کارت طوسی</span>
+            </button>
+            <button
+              onClick={handleCopyCode}
+              className="px-4 py-2 rounded-xl bg-white/[0.04] border border-white/[0.1] hover:bg-[#c9a96e]/10 hover:border-[#c9a96e]/30 text-[#e8bf82] text-xs font-bold flex items-center gap-2 transition"
+            >
+              {copiedCode ? <Check className="w-4 h-4 text-[#e8bf82]" /> : <Copy className="w-4 h-4" />}
+              <span>{copiedCode ? 'کد کپی شد!' : 'کپی الگوریتم'}</span>
+            </button>
+          </div>
         </div>
 
         <div className="bg-[#05060a] border border-white/[0.08] rounded-2xl p-4 font-mono text-xs text-[#ebeae3] overflow-x-auto max-h-[300px] leading-relaxed dir-ltr">

@@ -5,6 +5,9 @@ import {
   ArrowLeft, Lightbulb, Wrench
 } from 'lucide-react';
 import { TabType } from './Navbar';
+import { AmazonPriceComparer } from './AmazonPriceComparer';
+import { CADDownloadModal } from './CADDownloadModal';
+import { FullDeviceGallery } from './FullDeviceGallery';
 
 interface OverviewSectionProps {
   onSelectProject: (tab: TabType) => void;
@@ -33,6 +36,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ onSelectProjec
       borderColor: 'border-[#44d4cf]/30',
       badge: 'پولسازترین و پرتقاضاترین در بازار ایران',
       procurementLocation: 'لاله‌زار (المنت) + بازار پامنار (اکریلیک) + امجد (ESP32)',
+      image: '/images/thermoformer.jpg',
     },
     {
       id: 'impression' as TabType,
@@ -55,6 +59,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ onSelectProjec
       borderColor: 'border-[#e8a44f]/30',
       badge: 'صفر درصد تحریم و نرم‌افزار خالص',
       procurementLocation: 'چارسو / امجد (LED ۵۶۳۰) + Teachable Machine گوگل',
+      image: '/images/impression_scanner.jpg',
     },
     {
       id: 'autoclave' as TabType,
@@ -77,6 +82,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ onSelectProjec
       borderColor: 'border-[#d45d78]/30',
       badge: 'مطابق الزامات بهداشتی جدید اروپا',
       procurementLocation: 'ترموکوپل K + پرینتر حرارتی ۲ اینچ نادکو/پاساژ امجد',
+      image: '/images/autoclave_logger.jpg',
     },
     {
       id: 'shade' as TabType,
@@ -99,6 +105,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ onSelectProjec
       borderColor: 'border-[#c9a96e]/30',
       badge: 'درآمد ماهیانه ثابت و مستمر',
       procurementLocation: 'چاپ فوتو گرافیک کارت خاکستری ۱۸٪ استاندارد + مدل AI Python',
+      image: '/images/shade_matching.jpg',
     },
   ];
 
@@ -124,7 +131,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ onSelectProjec
           </p>
 
           {/* Quick Pillar Highlights */}
-          <div className="grid sm:grid-cols-4 gap-4 pt-4 border-t border-white/[0.06]">
+          <div className="grid sm:grid-cols-4 gap-4 pt-4 border-t border-white/[0.06] mb-6">
             {[
               { title: 'بدون تست بالینی', desc: 'تجهیزات آزمایشگاه و مطب' },
               { title: 'صادرات بی‌دردسر', desc: 'برچسب Lab Equipment' },
@@ -137,8 +144,15 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ onSelectProjec
               </div>
             ))}
           </div>
+
+          <div className="pt-4 border-t border-white/[0.06]">
+            <CADDownloadModal />
+          </div>
         </div>
       </div>
+
+      {/* Full Device Photographic Gallery */}
+      <FullDeviceGallery />
 
       {/* 4 Projects Grid */}
       <div>
@@ -168,7 +182,7 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ onSelectProjec
                   {/* Card Header */}
                   <div className="flex items-start justify-between gap-4 mb-5">
                     <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${p.color} p-[1px] shadow-lg`}>
+                      <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${p.color} p-[1px] shadow-lg shrink-0`}>
                         <div className="w-full h-full bg-[#0b0c15] rounded-[15px] flex items-center justify-center">
                           <Icon className={`w-6 h-6 ${p.textColor}`} />
                         </div>
@@ -179,8 +193,21 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ onSelectProjec
                         <p className="text-xs text-[#8a8a92]">{p.subtitle}</p>
                       </div>
                     </div>
-                    <span className={`text-[10px] px-2.5 py-1 rounded-full bg-white/[0.04] border ${p.borderColor} ${p.textColor} font-bold`}>
+                    <span className={`text-[10px] px-2.5 py-1 rounded-full bg-white/[0.04] border ${p.borderColor} ${p.textColor} font-bold shrink-0`}>
                       موفقیت {p.successRate}
+                    </span>
+                  </div>
+
+                  {/* Device Real Industrial Photo Preview */}
+                  <div className="mb-5 rounded-2xl overflow-hidden border border-white/10 h-44 relative group img-shimmer">
+                    <img
+                      src={p.image}
+                      alt={p.title}
+                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0b0c15] via-transparent to-transparent opacity-80" />
+                    <span className="absolute bottom-3 right-3 text-[10px] px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-md text-[#f6f5f0] border border-white/10 font-bold">
+                      تصویر صنعتی واقعی دستگاه #{p.num}
                     </span>
                   </div>
 
@@ -240,6 +267,9 @@ export const OverviewSection: React.FC<OverviewSectionProps> = ({ onSelectProjec
           })}
         </div>
       </div>
+
+      {/* Amazon vs Iran Price Comparison Breakdown */}
+      <AmazonPriceComparer />
 
       {/* Full Matrix Comparison Table */}
       <div className="glass-card rounded-3xl p-6 lg:p-8 border border-white/[0.08]">

@@ -7,10 +7,11 @@ import {
 import { CADStudio } from './thermoformer/CADStudio';
 import { PCBStudio } from './thermoformer/PCBStudio';
 import { FirmwareStudio } from './thermoformer/FirmwareStudio';
+import { VisualComponentGallery } from './VisualComponentGallery';
 
 export const ThermoformerSection: React.FC = () => {
   // Sub-section active tab state
-  const [activeSubTab, setActiveSubTab] = useState<'sim' | 'cad' | 'pcb' | 'code'>('sim');
+  const [activeSubTab, setActiveSubTab] = useState<'sim' | 'parts' | 'cad' | 'pcb' | 'code'>('sim');
 
   // Simulator states
   const [sheetThickness, setSheetThickness] = useState<number>(1.0); // mm
@@ -216,7 +217,8 @@ void triggerVacuumSuction() {
       {/* Sub-studio Workspace Tabs */}
       <div className="flex overflow-x-auto gap-2 p-1.5 bg-[#07080d] rounded-2xl border border-white/[0.08]">
         {[
-          { id: 'sim', label: '📊 شبیه‌ساز و لیست قطعات بازار', icon: Activity },
+          { id: 'sim', label: '📊 شبیه‌ساز و کنترل زنده', icon: Activity },
+          { id: 'parts', label: '🖼️ گالری تصویری قطعات سخت‌افزاری', icon: ShoppingCart },
           { id: 'cad', label: '📐 طراحی مکانیکی CAD و شاسی بدنه', icon: Box },
           { id: 'pcb', label: '⚡ شماتیک الکترونیک و برد PCB', icon: Layers },
           { id: 'code', label: '💻 سورس کدهای C++، پایتون و اپ بلوتوث', icon: Code2 },
@@ -241,6 +243,7 @@ void triggerVacuumSuction() {
       </div>
 
       {/* Conditional Rendering of Sub-Studios */}
+      {activeSubTab === 'parts' && <VisualComponentGallery />}
       {activeSubTab === 'cad' && <CADStudio />}
       {activeSubTab === 'pcb' && <PCBStudio />}
       {activeSubTab === 'code' && <FirmwareStudio />}

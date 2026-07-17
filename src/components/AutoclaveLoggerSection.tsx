@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { 
-  Package, Code2, Copy, Check, QrCode, ShoppingCart, Square, CheckSquare
+  Package, Code2, Copy, Check, QrCode, ShoppingCart, Square, CheckSquare, Download, Box
 } from 'lucide-react';
+import { downloadTextFile, CAD_DXF_TEMPLATES, GERBER_PCB_SPEC } from '../utils/fileDownloader';
 
 export const AutoclaveLoggerSection: React.FC = () => {
   const [copiedCode, setCopiedCode] = useState<boolean>(false);
   const [cycleSimulating, setCycleSimulating] = useState<boolean>(false);
+  const [photoViewMode, setPhotoViewMode] = useState<'full' | 'inUse'>('full');
   const [generatedLabel, setGeneratedLabel] = useState<{
     packId: string;
     instrumentName: string;
@@ -159,29 +161,123 @@ void printSterilizationQRLabel(String packId, String toolName, float finalTemp) 
             </div>
           </div>
 
-          <div className="space-y-3 text-xs">
-            {[
-              { id: 'ac1', title: 'ترموکوپل صنعتی نوع K با ماژول MAX6675', price: '۲۲۰,۰۰۰ تومان' },
-              { id: 'ac2', title: 'پرینتر حرارتی ۲ اینچی حرارتی TTL (Sticker Printer)', price: '۱,۴۵۰,۰۰۰ تومان' },
-              { id: 'ac3', title: 'برد کنترلر ESP32 + ماژول RTC DS3231', price: '۲۸۰,۰۰۰ تومان' },
-              { id: 'ac4', title: 'رول کاغذ حرارتی برچسب‌دار ضد آب', price: '۴۵,۰۰۰ تومان/رول' },
-            ].map((item) => (
-              <div
-                key={item.id}
-                onClick={() => toggleCheck(item.id)}
-                className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
-                  itemsChecked[item.id] ? 'bg-[#d45d78]/10 border-[#d45d78]/40 text-[#f6f5f0]' : 'bg-white/[0.02] border-white/[0.05] text-[#8a8a92]'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  {itemsChecked[item.id] ? <CheckSquare className="w-4 h-4 text-[#e88598]" /> : <Square className="w-4 h-4 text-[#8a8a92]" />}
-                  <span className={itemsChecked[item.id] ? 'line-through text-[#e88598]' : ''}>{item.title}</span>
+            <div className="space-y-3 text-xs mb-4">
+              {[
+                { id: 'ac1', title: 'ترموکوپل صنعتی نوع K با ماژول MAX6675', price: '۲۲۰,۰۰۰ تومان' },
+                { id: 'ac2', title: 'پرینتر حرارتی ۲ اینچی حرارتی TTL (Sticker Printer)', price: '۱,۴۵۰,۰۰۰ تومان' },
+                { id: 'ac3', title: 'برد کنترلر ESP32 + ماژول RTC DS3231', price: '۲۸۰,۰۰۰ تومان' },
+                { id: 'ac4', title: 'رول کاغذ حرارتی برچسب‌دار ضد آب', price: '۴۵,۰۰۰ تومان/رول' },
+              ].map((item) => (
+                <div
+                  key={item.id}
+                  onClick={() => toggleCheck(item.id)}
+                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
+                    itemsChecked[item.id] ? 'bg-[#d45d78]/10 border-[#d45d78]/40 text-[#f6f5f0]' : 'bg-white/[0.02] border-white/[0.05] text-[#8a8a92]'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    {itemsChecked[item.id] ? <CheckSquare className="w-4 h-4 text-[#e88598]" /> : <Square className="w-4 h-4 text-[#8a8a92]" />}
+                    <span className={itemsChecked[item.id] ? 'line-through text-[#e88598]' : ''}>{item.title}</span>
+                  </div>
+                  <span className="font-bold text-[#e88598] text-[10px]">{item.price}</span>
                 </div>
-                <span className="font-bold text-[#e88598] text-[10px]">{item.price}</span>
-              </div>
-            ))}
+              ))}
+            </div>
+
+            {/* Downloads */}
+            <div className="pt-3 border-t border-white/[0.06] flex flex-wrap gap-2">
+              <button
+                onClick={() => downloadTextFile('Autoclave_Logger_Chassis.dxf', CAD_DXF_TEMPLATES.autoclaveLogger, 'text/plain;charset=utf-8')}
+                className="flex-1 py-2 px-3 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:border-[#d45d78] text-[#e88598] text-[11px] font-bold flex items-center justify-center gap-1.5 transition"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>DXF شاسی لاگر</span>
+              </button>
+              <button
+                onClick={() => downloadTextFile('Gerber_AutoclaveLogger_PCB.gbr', GERBER_PCB_SPEC, 'text/plain;charset=utf-8')}
+                className="py-2 px-3 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:border-[#44d4cf] text-[#44d4cf] text-[11px] font-bold flex items-center justify-center gap-1.5 transition"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Gerber PCB</span>
+              </button>
+            </div>
           </div>
-        </div>
+
+          {/* Real Generated Industrial Photo */}
+          <div className="glass-card rounded-3xl p-5 border border-white/[0.08] space-y-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+              <span className="text-xs font-bold text-[#f6f5f0]">گالری استودیویی تصاویر محصول</span>
+              
+              <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10 text-[10px]">
+                <button
+                  onClick={() => setPhotoViewMode('full')}
+                  className={`px-2 py-1 rounded-lg font-bold transition ${
+                    photoViewMode === 'full' ? 'bg-[#e88598] text-[#0b0c15]' : 'text-[#8a8a92] hover:text-white'
+                  }`}
+                >
+                  بدنه کامل کنسول
+                </button>
+                <button
+                  onClick={() => setPhotoViewMode('inUse')}
+                  className={`px-2 py-1 rounded-lg font-bold transition ${
+                    photoViewMode === 'inUse' ? 'bg-[#44d4cf] text-[#0b0c15]' : 'text-[#8a8a92] hover:text-white'
+                  }`}
+                >
+                  نصب کنار اتوکلاو
+                </button>
+              </div>
+            </div>
+
+            <div className="rounded-2xl overflow-hidden border border-white/10 h-52 relative group img-shimmer">
+              <img
+                src={photoViewMode === 'full' ? '/images/full_autoclave_logger.jpg' : '/images/autoclave_logger.jpg'}
+                alt="Autoclave Logger Photo"
+                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+              />
+              <span className="absolute bottom-2 right-2 bg-black/80 backdrop-blur-md px-2.5 py-1 rounded-lg text-[9px] text-[#e88598] font-mono border border-white/10">
+                {photoViewMode === 'full' ? 'تصویر کامل کنسول صنعتی DIN و پرینتر' : 'تصویر نصب شده کنار اتوکلاو استریل'}
+              </span>
+            </div>
+          </div>
+
+          {/* Din-Rail Enclosure Visual Schematic Render */}
+          <div className="glass-card rounded-3xl p-5 border border-white/[0.08] space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs font-bold text-[#f6f5f0]">
+                <Box className="w-4 h-4 text-[#e88598]" />
+                طرح شماتیک و اتصالات لاگر اتوکلاو
+              </div>
+              <span className="text-[10px] text-[#e88598] font-bold">DIN-Rail &amp; Thermocouple K</span>
+            </div>
+            <div className="p-4 rounded-2xl bg-[#030408] border border-white/[0.1] flex flex-col items-center justify-center">
+              <svg viewBox="0 0 240 130" className="w-full max-w-xs drop-shadow-lg">
+                {/* Main Enclosure Box */}
+                <rect x="40" y="20" width="160" height="90" rx="8" fill="#18181b" stroke="#e88598" strokeWidth="2" />
+                {/* Thermal Printer Slot Top Right */}
+                <rect x="130" y="30" width="60" height="35" rx="4" fill="#09090b" stroke="#525252" strokeWidth="1" />
+                <rect x="140" y="35" width="40" height="4" fill="#e88598" />
+                {/* Emerging Printed Sticker Label */}
+                <rect x="142" y="39" width="36" height="22" fill="#fafafa" rx="1" />
+                {/* Micro QR Code Representation */}
+                <rect x="162" y="42" width="12" height="12" fill="#000000" />
+                <line x1="145" y1="44" x2="158" y2="44" stroke="#000" strokeWidth="1" />
+                <line x1="145" y1="48" x2="158" y2="48" stroke="#000" strokeWidth="1" />
+                <line x1="145" y1="52" x2="158" y2="52" stroke="#000" strokeWidth="1" />
+                {/* Stainless K-Type Thermocouple Metal Braided Cable Probe */}
+                <path d="M 10,75 L 40,75" stroke="#e2e8f0" strokeWidth="4" strokeLinecap="round" />
+                <path d="M 10,75 L 40,75" stroke="#fbbf24" strokeWidth="2" strokeDasharray="3 3" />
+                {/* Yellow Heavy Duty K-Type Connector Plug */}
+                <rect x="32" y="68" width="14" height="14" rx="2" fill="#eab308" stroke="#a16207" strokeWidth="1" />
+                {/* OLED Temperature Live Status */}
+                <rect x="52" y="30" width="65" height="35" rx="4" fill="#000000" stroke="#44d4cf" strokeWidth="1" />
+                <text x="84" y="48" fill="#44d4cf" fontSize="9" fontWeight="bold" textAnchor="middle" fontFamily="monospace">134.5 °C</text>
+                <text x="84" y="58" fill="#22c55e" fontSize="6" textAnchor="middle" fontFamily="monospace">PASS: STERILE</text>
+                {/* Cable Text */}
+                <text x="25" y="90" fill="#e8a44f" fontSize="6" textAnchor="middle">پروب ترموکوپل K نسوز</text>
+                <text x="84" y="102" fill="#a1a1aa" fontSize="7" fontWeight="bold" textAnchor="middle">لاگر هوشمند و چاپگر QR</text>
+              </svg>
+            </div>
+          </div>
 
         {/* Interactive Logger Simulator (7 cols) */}
         <div className="lg:col-span-7 glass-card rounded-3xl p-6 lg:p-8 border border-[#d45d78]/20 flex flex-col justify-between">

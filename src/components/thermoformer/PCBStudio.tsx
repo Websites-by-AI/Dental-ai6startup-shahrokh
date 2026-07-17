@@ -3,6 +3,7 @@ import {
   Cpu, Zap, ShieldCheck, Download,
   Activity, Info, AlertTriangle, Radio
 } from 'lucide-react';
+import { VISUAL_PARTS_DATABASE } from '../VisualComponentGallery';
 
 interface ComponentBOM {
   ref: string;
@@ -211,6 +212,20 @@ export const PCBStudio: React.FC = () => {
             </h3>
 
             <div className="glass-card rounded-3xl p-6 border border-white/[0.08] space-y-4">
+              {/* Part SVG Photorealistic Illustration Card */}
+              {(() => {
+                const mappedPartKey = selectedComponent === 'S1' ? 'mlx90614' : selectedComponent === 'SSR1' ? 'ssr40a' : 'esp32';
+                const partObj = VISUAL_PARTS_DATABASE[mappedPartKey];
+                return (
+                  <div className="p-4 rounded-2xl bg-[#030408] border border-white/[0.1] flex flex-col items-center justify-center">
+                    <div className="w-full max-w-[200px]">
+                      {partObj.svgIllustration}
+                    </div>
+                    <span className="text-[9px] font-mono text-[#44d4cf] mt-2">تصویر و آرایش واقعی پین‌های قطعه</span>
+                  </div>
+                );
+              })()}
+
               <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
                 <div>
                   <span className="text-[10px] font-mono text-[#44d4cf] font-bold">{currentBOM.ref}</span>

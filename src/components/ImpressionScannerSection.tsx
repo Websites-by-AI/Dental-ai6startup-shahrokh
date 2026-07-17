@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { 
   ScanLine, CheckCircle2, AlertTriangle, 
-  Code2, Copy, Check, Sparkles, ShoppingCart, Square, CheckSquare
+  Code2, Copy, Check, Sparkles, ShoppingCart, Square, CheckSquare, Download, Box
 } from 'lucide-react';
+import { downloadTextFile, CAD_DXF_TEMPLATES, BOMS_CSV } from '../utils/fileDownloader';
 
 interface SampleImpression {
   id: string;
@@ -20,6 +21,7 @@ export const ImpressionScannerSection: React.FC = () => {
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [analysisResult, setAnalysisResult] = useState<SampleImpression | null>(null);
   const [copiedCode, setCopiedCode] = useState<boolean>(false);
+  const [photoViewMode, setPhotoViewMode] = useState<'full' | 'exploded' | 'inUse'>('full');
 
   // Shopping list items
   const [itemsChecked, setItemsChecked] = useState<Record<string, boolean>>({
@@ -201,7 +203,7 @@ if __name__ == "__main__":
               </div>
             </div>
 
-            <div className="space-y-2.5 text-xs">
+            <div className="space-y-2.5 text-xs mb-4">
               {[
                 { id: 'box1', title: 'باکس مکعبی ۳۰x۳۰ سانتی‌متر پلکسی دو جداره مات', market: 'پامنار (برش لیزری)', price: '۲۸0,000 تومان' },
                 { id: 'box2', title: 'نوار LED SMD 5630 با شاخص نور CRI>95', market: 'امجد / لاله‌زار', price: '۹۵,۰۰۰ تومان' },
@@ -222,6 +224,109 @@ if __name__ == "__main__":
                   <span className="font-bold text-[#e8a44f] text-[10px]">{item.price}</span>
                 </div>
               ))}
+            </div>
+
+            {/* Quick CAD & BOM Download Actions */}
+            <div className="pt-3 border-t border-white/[0.06] flex gap-2">
+              <button
+                onClick={() => downloadTextFile('Impression_Lightbox_Cut.dxf', CAD_DXF_TEMPLATES.impressionBox, 'text/plain;charset=utf-8')}
+                className="flex-1 py-2 px-3 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:border-[#e8a44f] text-[#e8a44f] text-[11px] font-bold flex items-center justify-center gap-1.5 transition"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>دانلود DXF برش پلکسی</span>
+              </button>
+              <button
+                onClick={() => downloadTextFile('BOM_ImpressionBox_Tehran.csv', BOMS_CSV.impressionScanner, 'text/csv;charset=utf-8')}
+                className="py-2 px-3 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:border-[#44d4cf] text-[#44d4cf] text-[11px] font-bold flex items-center justify-center gap-1.5 transition"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>دانلود BOM</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Real Generated Industrial Photo with Standalone vs Exploded Switcher */}
+          <div className="glass-card rounded-3xl p-5 border border-white/[0.08] space-y-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+              <span className="text-xs font-bold text-[#f6f5f0]">گالری استودیویی تصاویر محصول</span>
+              
+              {/* Photo Mode Pills */}
+              <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10 text-[10px]">
+                <button
+                  onClick={() => setPhotoViewMode('full')}
+                  className={`px-2 py-1 rounded-lg font-bold transition ${
+                    photoViewMode === 'full' ? 'bg-[#e8a44f] text-[#0b0c15]' : 'text-[#8a8a92] hover:text-white'
+                  }`}
+                >
+                  بدنه کامل
+                </button>
+                <button
+                  onClick={() => setPhotoViewMode('exploded')}
+                  className={`px-2 py-1 rounded-lg font-bold transition ${
+                    photoViewMode === 'exploded' ? 'bg-[#44d4cf] text-[#0b0c15]' : 'text-[#8a8a92] hover:text-white'
+                  }`}
+                >
+                  نمای انفجاری
+                </button>
+                <button
+                  onClick={() => setPhotoViewMode('inUse')}
+                  className={`px-2 py-1 rounded-lg font-bold transition ${
+                    photoViewMode === 'inUse' ? 'bg-[#e88598] text-[#0b0c15]' : 'text-[#8a8a92] hover:text-white'
+                  }`}
+                >
+                  محیط کار
+                </button>
+              </div>
+            </div>
+
+            <div className="rounded-2xl overflow-hidden border border-white/10 h-52 relative group img-shimmer">
+              <img
+                src={
+                  photoViewMode === 'full' ? '/images/full_impression_box.jpg' :
+                  photoViewMode === 'exploded' ? '/images/exploded_impression_box.jpg' :
+                  '/images/impression_scanner.jpg'
+                }
+                alt="AI Impression Scanner Photo"
+                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+              />
+              <span className="absolute bottom-2 right-2 bg-black/80 backdrop-blur-md px-2.5 py-1 rounded-lg text-[9px] text-[#e8a44f] font-mono border border-white/10">
+                {photoViewMode === 'full' && 'تصویر کامل لایت‌باکس ۳۰x۳۰cm'}
+                {photoViewMode === 'exploded' && 'نمای انفجاری تفکیک شش دیواره پلکسی و دوربین HD'}
+                {photoViewMode === 'inUse' && 'تصویر آنالیز زنده قالب خمیری در مطب'}
+              </span>
+            </div>
+          </div>
+
+          {/* Physical Lightbox Visual Assembly Render */}
+          <div className="glass-card rounded-3xl p-5 border border-white/[0.08] space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs font-bold text-[#f6f5f0]">
+                <Box className="w-4 h-4 text-[#e8a44f]" />
+                نمای شماتیک و اجزای فیزیکی لایت‌باکس پلکسی
+              </div>
+              <span className="text-[10px] text-[#e8a44f] font-bold">CRI &gt; 95 Lightbox</span>
+            </div>
+            
+            <div className="p-4 rounded-2xl bg-[#030408] border border-white/[0.1] flex flex-col items-center justify-center">
+              <svg viewBox="0 0 240 140" className="w-full max-w-xs drop-shadow-lg">
+                {/* Acrylic Frosted Cube Box Frame */}
+                <rect x="30" y="20" width="180" height="100" rx="8" fill="#121422" stroke="#e8a44f" strokeWidth="2" />
+                <rect x="36" y="26" width="168" height="88" rx="4" fill="#181a29" stroke="#334155" strokeWidth="1" />
+                {/* Dual White LED Strips Left & Right */}
+                <line x1="42" y1="30" x2="42" y2="110" stroke="#fef08a" strokeWidth="4" strokeLinecap="round" />
+                <line x1="198" y1="30" x2="198" y2="110" stroke="#fef08a" strokeWidth="4" strokeLinecap="round" />
+                {/* USB Macro Camera Ring Top Center */}
+                <rect x="100" y="20" width="40" height="12" rx="3" fill="#334155" stroke="#44d4cf" strokeWidth="1.5" />
+                <circle cx="120" cy="26" r="4" fill="#0284c7" stroke="#38bdf8" strokeWidth="1" />
+                {/* Dental Tray Impression Placement in Bottom Center */}
+                <path d="M 85,90 C 85,60 155,60 155,90 Z" fill="#b45309" opacity="0.8" stroke="#d97706" strokeWidth="2" />
+                <path d="M 95,85 C 95,68 145,68 145,85" fill="none" stroke="#fef08a" strokeWidth="1.5" strokeDasharray="2 2" />
+                {/* Annotations */}
+                <text x="120" y="15" fill="#44d4cf" fontSize="7" fontWeight="bold" textAnchor="middle">USB 1080p MACRO CAMERA</text>
+                <text x="120" y="80" fill="#fef2f2" fontSize="7" fontWeight="bold" textAnchor="middle"> قالی سیلیکونی / آلژیناتی</text>
+                <text x="42" y="122" fill="#e8a44f" fontSize="6" textAnchor="middle">SMD LED CRI&gt;95</text>
+                <text x="198" y="122" fill="#e8a44f" fontSize="6" textAnchor="middle">SMD LED CRI&gt;95</text>
+              </svg>
             </div>
           </div>
 
